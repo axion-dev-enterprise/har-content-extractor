@@ -1,0 +1,79 @@
+## User Goal
+
+The user wants to extract the following from this site:
+
+**"{goal}"**
+
+## Site Profile (from HAR analysis)
+
+```json
+{site_profile}
+```
+
+## Sample API Responses (previews of actual data)
+
+```json
+{sample_responses}
+```
+
+## Your Task
+
+Based on the site profile and sample responses, create an optimal extraction plan.
+
+Respond with a JSON object in this exact structure:
+
+```json
+{
+  "site_summary": "Brief description of what this site is and how it serves content",
+  "architecture": "SPA | SSR | API-driven | Static | Hybrid",
+  "strategy": "Brief description of the extraction strategy you'll use",
+  "auth_required": false,
+  "auth_notes": "If auth is needed, explain what headers/cookies are required",
+  "steps": [
+    {
+      "description": "Human-readable description of this step",
+      "method": "GET",
+      "url_template": "https://example.com/api/products",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "params": {
+        "category": "all"
+      },
+      "body": null,
+      "pagination": {
+        "type": "page",
+        "param": "page",
+        "start": 1,
+        "step": 1,
+        "max": 20
+      },
+      "data_path": "data.products",
+      "fields": ["name", "price", "image_url", "link"]
+    }
+  ]
+}
+```
+
+### Field Explanations
+
+- **url_template**: The full URL to request. Use the exact URLs seen in the HAR data.
+- **headers**: Essential headers for valid responses (exclude standard browser headers unless critical)
+- **params**: Query parameters to include
+- **body**: POST body if method is POST, null otherwise
+- **pagination**: How to paginate through results. Set to null if no pagination needed.
+  - `type`: "page" (1,2,3...), "offset" (0,20,40...), or "cursor" (string token)
+  - `param`: The query parameter name for pagination
+  - `start`: Starting value
+  - `step`: Increment per page
+  - `max`: Suggested maximum pages to fetch
+- **data_path**: Dot-separated path to navigate to the array of items in the JSON response (e.g., "data.results", "products", "response.items")
+- **fields**: Specific fields to extract from each item. Use dot notation for nested fields (e.g., "pricing.current", "images.0.url"). Leave empty to extract all fields.
+
+### Important
+
+- Use ACTUAL URLs from the HAR data, not guessed ones
+- If the data is served via GraphQL, include the query in the body
+- Prefer endpoints returning JSON arrays of items
+- If images need to be extracted, include them in the fields and note any URL patterns for getting higher resolution versions
+- Keep the number of steps minimal — combine when possible
